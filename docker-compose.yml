@@ -1,0 +1,102 @@
+version: "2"
+
+services:
+
+###
+  nginx:
+    build: nginx
+    image: sockyjam/llxglaravel.nginx:v01
+    container_name: llxglaravel.nginx
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    expose:
+      - "80"
+      - "443"
+      - "8080"
+    volumes:
+      - ../llxg_api:/var/www/api
+      - ../llxg-admin:/var/www/admin
+      - ./nginx/index.html:/var/www/index.html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    links:
+      - "php"
+
+###
+  php:
+    build: php
+    image: sockyjam/llxglaravel.phpfpm:v01
+    container_name: llxglaravel.phpfpm
+    ports:
+      - "9000:9000"
+    expose:
+      - "9000"
+    volumes:
+      - ../llxg_api:/var/www/api
+      - ../llxg-admin:/var/www/admin
+    working_dir: /var/www
+    links:
+      - "mysql"
+      - "redis"
+
+###
+  mysql:
+    build: mysql
+    image: sockyjam/llxglaravel.mysql:v01
+    container_name: llxglaravel.mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "asjfdiiuikw77632kjs6"
+      MYSQL_DATABASE: "lardb"
+      MYSQL_USER: "lardb"
+      MYSQL_PASSWORD: "LAufJj87fdAkuq23"
+    volumes:
+      - ./mysql/dbdata:/var/lib/mysql
+
+
+###
+  composer:
+    build: composer
+    image: sockyjam/llxglaravel.compser:v01
+    container_name: llxglaravel.compser
+    volumes:
+      - ../llxg_api:/var/www/api
+      - ../llxg-admin:/var/www/admin
+    working_dir: /var/www
+    # entrypoint:  "composer"
+    # command:  "--help"
+    # links:
+    #   - "db"
+
+
+###
+  artisan:
+    build: artisan
+    image: sockyjam/llxglaravel.artisan:v01
+    container_name: llxglaravel.artisan
+    volumes:
+      - ../llxg_api:/var/www/api
+      - ../llxg-admin:/var/www/admin
+    working_dir: /var/www
+    # entrypoint:  "php artisan"
+    # command:  "--help"
+    # links:
+    #   - "db"
+
+###
+  redis:
+    build: redis
+    image: sockyjam/llxglaravel.redis:v01
+    container_name: llxglaravel.redis
+    volumes:
+      - ./redis/dbdata:/data
+    ports:
+      - "6379:6379"
+
+
+
+
